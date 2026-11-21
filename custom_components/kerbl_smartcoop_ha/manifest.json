@@ -1,6 +1,6 @@
 {
   "domain": "kerbl_smartcoop_ha",
-  "name": "Kerbl SmartCoop HA",
+  "name": "Kerbl SmartCoop HAS",
   "codeowners": [
     "@cszxnzwc8s-max"
   ],
@@ -10,5 +10,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/cszxnzwc8s-max/ha-kerbl-smartcoop/issues",
   "requirements": [],
-  "version": "0.9.5"
+  "version": "0.9.6"
 }

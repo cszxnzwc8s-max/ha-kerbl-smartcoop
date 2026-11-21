@@ -27,3 +27,6 @@ LIVE_SOCKETIO_PATH = "/ws/v0.1/socket.io"
 # abgefragt und zusammengeführt, da SmartCoop-Hardware oft aus Controller
 # + separatem Türantrieb besteht.
 DEVICE_LIST_KEYS = ["smartCoop", "smartChickenDoor"]
+
+# Persoenliche Felder, die in Attributen und Diagnose ausgeblendet werden
+REDACT_KEYS = {"email", "password", "emailAddressesNotifications", "userId", "mac", "accessToken", "refreshToken"}

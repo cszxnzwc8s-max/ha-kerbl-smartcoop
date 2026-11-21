@@ -23,12 +23,13 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import MATCH_ALL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import DOMAIN, REDACT_KEYS
 from .coordinator import KerblSmartCoopCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -91,10 +92,13 @@ _SETTING_SPECS: list[tuple[str, str, str, dict[Any, str] | None]] = [
 ]
 
 
+PARALLEL_UPDATES = 0
+
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    coordinator: KerblSmartCoopCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: KerblSmartCoopCoordinator = entry.runtime_data
 
     entities: list[SensorEntity] = []
     for device in coordinator.data.get("devices", []):
@@ -115,6 +119,7 @@ async def async_setup_entry(
                 KerblSmartCoopValueSensor(
                     coordinator, device_id, name, path, icon,
                     unit=unit, device_class=device_class, state_class=state_class,
+                    offline_unavailable=True,
                 )
             )
 
@@ -152,6 +157,22 @@ class _KerblSmartCoopBaseEntity(CoordinatorEntity[KerblSmartCoopCoordinator]):
                 return device
         return {}
 
+    def _module_online(self) -> bool:
+        """False nur, wenn die Cloud das Modul ausdruecklich als offline meldet."""
+        return self._device_data().get("isOnline") is not False
+
+
+class _OfflineUnavailableMixin:
+    """Live-Werte als 'nicht verfuegbar' zeigen, solange das Modul offline ist.
+
+    Sonst wuerde z.B. der Tuerstatus tagelang den letzten Stand anzeigen, als
+    waere er aktuell.
+    """
+
+    @property
+    def available(self) -> bool:
+        return super().available and self._module_online()  # type: ignore[misc]
+
     @property
     def device_info(self) -> DeviceInfo:
         data = self._device_data()
@@ -164,10 +185,15 @@ class _KerblSmartCoopBaseEntity(CoordinatorEntity[KerblSmartCoopCoordinator]):
 
 
 class KerblSmartCoopRawSensor(_KerblSmartCoopBaseEntity, SensorEntity):
-    """Diagnose-Sensor: zeigt alle Rohdaten als Attribute."""
+    """Diagnose-Sensor: Online-Status, Rohdaten als Attribute.
+
+    Die Attribute (ca. 5 KB) werden bewusst NICHT in der Datenbank
+    gespeichert; fuer Fehlersuche gibt es den Diagnose-Download.
+    """
 
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:code-json"
+    _unrecorded_attributes = frozenset({MATCH_ALL})
 
     def __init__(self, coordinator: KerblSmartCoopCoordinator, device_id: str) -> None:
         super().__init__(coordinator, device_id)
@@ -186,7 +212,11 @@ class KerblSmartCoopRawSensor(_KerblSmartCoopBaseEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        return dict(self._device_data())
+        data = dict(self._device_data())
+        for key in REDACT_KEYS:
+            if key in data:
+                data[key] = "**REDACTED**"
+        return data
 
 
 class KerblSmartCoopValueSensor(_KerblSmartCoopBaseEntity, SensorEntity):
@@ -204,8 +234,10 @@ class KerblSmartCoopValueSensor(_KerblSmartCoopBaseEntity, SensorEntity):
         state_class: SensorStateClass | None = None,
         category: EntityCategory | None = None,
         translations: dict[Any, str] | None = None,
+        offline_unavailable: bool = False,
     ) -> None:
         super().__init__(coordinator, device_id)
+        self._offline_unavailable = offline_unavailable
         self._path = path
         self._translations = translations or {}
         safe_path = path.replace(".", "_")
@@ -216,6 +248,12 @@ class KerblSmartCoopValueSensor(_KerblSmartCoopBaseEntity, SensorEntity):
         self._attr_device_class = device_class
         self._attr_state_class = state_class
         self._attr_entity_category = category
+
+    @property
+    def available(self) -> bool:
+        if self._offline_unavailable and not self._module_online():
+            return False
+        return super().available
 
     @property
     def native_value(self) -> Any:

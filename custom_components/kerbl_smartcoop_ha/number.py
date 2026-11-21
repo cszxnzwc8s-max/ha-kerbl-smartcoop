@@ -70,10 +70,13 @@ _NUMBER_SPECS: list[_NumberSpec] = [
 ]
 
 
+PARALLEL_UPDATES = 1
+
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    coordinator: KerblSmartCoopCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: KerblSmartCoopCoordinator = entry.runtime_data
 
     entities: list[NumberEntity] = []
     for device in coordinator.data.get("devices", []):

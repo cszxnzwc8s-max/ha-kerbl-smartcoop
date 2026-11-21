@@ -7,6 +7,17 @@
         "data": {
           "email": "E-Mail",
           "password": "Passwort"
+        },
+        "data_description": {
+          "email": "Die E-Mail-Adresse deines Kerbl-Welt-Kontos",
+          "password": "Das Passwort deines Kerbl-Welt-Kontos"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Kerbl-Konto erneut anmelden",
+        "description": "Kerbl hat die Anmeldung für {email} abgelehnt. Bitte gib das aktuelle Passwort ein.",
+        "data": {
+          "password": "Passwort"
         }
       }
     },
@@ -16,7 +27,8 @@
       "unknown": "Unerwarteter Fehler"
     },
     "abort": {
-      "already_configured": "Dieses Konto ist bereits eingerichtet"
+      "already_configured": "Dieses Konto ist bereits eingerichtet",
+      "reauth_successful": "Die Anmeldung wurde erneuert."
     }
   }
 }

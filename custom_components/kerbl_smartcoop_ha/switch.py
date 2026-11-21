@@ -21,10 +21,13 @@ _SWITCH_SPECS: list[tuple[str, str, str]] = [
 ]
 
 
+PARALLEL_UPDATES = 1
+
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    coordinator: KerblSmartCoopCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: KerblSmartCoopCoordinator = entry.runtime_data
 
     entities: list[SwitchEntity] = []
     for device in coordinator.data.get("devices", []):

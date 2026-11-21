@@ -7,6 +7,8 @@ from datetime import timedelta
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -26,6 +28,7 @@ class KerblSmartCoopCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         super().__init__(
             hass,
             _LOGGER,
+            config_entry=entry,
             name=DOMAIN,
             update_interval=timedelta(seconds=UPDATE_INTERVAL_SECONDS),
         )
@@ -35,9 +38,18 @@ class KerblSmartCoopCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
-            raw = await self.client.async_get_raw_devices()
+            try:
+                raw = await self.client.async_get_raw_devices()
+            except KerblAuthError:
+                # Sitzung abgelaufen (Refresh-Token ungueltig): mit den
+                # gespeicherten Zugangsdaten neu anmelden und nochmal versuchen.
+                await self.client.authenticate(
+                    self.entry.data[CONF_EMAIL], self.entry.data[CONF_PASSWORD]
+                )
+                raw = await self.client.async_get_raw_devices()
         except KerblAuthError as err:
-            raise UpdateFailed(f"Anmeldung ungueltig: {err}") from err
+            # Passwort wird von Kerbl abgelehnt -> HA bietet "Erneut anmelden" an
+            raise ConfigEntryAuthFailed(f"Anmeldung ungueltig: {err}") from err
         except (KerblApiError, KerblConnectionError) as err:
             raise UpdateFailed(f"Abfrage fehlgeschlagen: {err}") from err
 

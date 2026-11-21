@@ -25,7 +25,12 @@ from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
 from .coordinator import KerblSmartCoopCoordinator
-from .sensor import _KerblSmartCoopBaseEntity, _get_path, _is_demo_device
+from .sensor import (
+    _KerblSmartCoopBaseEntity,
+    _OfflineUnavailableMixin,
+    _get_path,
+    _is_demo_device,
+)
 
 _DOOR_STATE_OPEN = 79
 _DOOR_STATE_CLOSED = 67
@@ -35,10 +40,13 @@ _DOOR_STATE_CLOSING = 99
 _DOOR_STATE_OPENING = 111
 
 
+PARALLEL_UPDATES = 0
+
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    coordinator: KerblSmartCoopCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: KerblSmartCoopCoordinator = entry.runtime_data
 
     entities: list[BinarySensorEntity] = []
     for device in coordinator.data.get("devices", []):
@@ -56,7 +64,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class KerblSmartCoopDoorSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity):
+class KerblSmartCoopDoorSensor(_OfflineUnavailableMixin, _KerblSmartCoopBaseEntity, BinarySensorEntity):
     """Tuer offen/geschlossen, dekodiert aus dem rohen Zahlencode."""
 
     _attr_device_class = BinarySensorDeviceClass.DOOR
@@ -91,7 +99,7 @@ class KerblSmartCoopDoorSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity):
         }
 
 
-class KerblSmartCoopFanRunningSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity):
+class KerblSmartCoopFanRunningSensor(_OfflineUnavailableMixin, _KerblSmartCoopBaseEntity, BinarySensorEntity):
     """Laeuft der Luefter gerade?
 
     Drei Signale, die zusammen die App-Logik nachbilden (App-Screenshots vom
@@ -172,7 +180,7 @@ class KerblSmartCoopFanRunningSensor(_KerblSmartCoopBaseEntity, BinarySensorEnti
         }
 
 
-class KerblSmartCoopLightOnSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity):
+class KerblSmartCoopLightOnSensor(_OfflineUnavailableMixin, _KerblSmartCoopBaseEntity, BinarySensorEntity):
     """Ist das Licht gerade an? Basiert auf light.currentDimValue (0 = aus)."""
 
     _attr_device_class = BinarySensorDeviceClass.LIGHT

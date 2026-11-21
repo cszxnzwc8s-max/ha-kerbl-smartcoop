@@ -1,4 +1,4 @@
-# Kerbl SmartCoop für Home Assistant
+# Kerbl SmartCoop HA – Kerbl SmartCoop für Home Assistant
 
 Inoffizielle Home-Assistant-Integration für das **Kerbl SmartCoop** Hühnerstall-System
 (Steuerung mit WLAN-Connectivity-Modul). Sie liest die Daten aus der Kerbl-Welt-Cloud –
@@ -39,7 +39,7 @@ Daten werden jede Minute abgefragt. Die Cloud aktualisiert die Helligkeit etwa a
 1. HACS → Menü (⋮) → **Benutzerdefinierte Repositories**
 2. URL `https://github.com/cszxnzwc8s-max/ha-kerbl-smartcoop`, Typ **Integration**
 3. „Kerbl SmartCoop“ herunterladen und Home Assistant neu starten
-4. Einstellungen → Geräte & Dienste → Integration hinzufügen → **Kerbl SmartCoop**
+4. Einstellungen → Geräte & Dienste → Integration hinzufügen → **Kerbl SmartCoop HA**
 5. Mit dem Kerbl-Welt-Konto (E-Mail und Passwort aus der App) anmelden
 
 ## Bekannte Codes
@@ -65,9 +65,9 @@ Daten werden jede Minute abgefragt. Die Cloud aktualisiert die Helligkeit etwa a
 
 ## Hinweis
 
-Es gibt ein älteres, unabhängiges Projekt mit derselben Integrations-Domain
-(`kerbl_smartcoop`): [code723/kerbl-smartcoop](https://github.com/code723/kerbl-smartcoop) (MIT).
-Beide nicht gleichzeitig installieren.
+Diese Integration nutzt die eigene Domain `kerbl_smartcoop_ha` und kann daher neben
+anderen Kerbl-Projekten installiert sein, z. B. [code723/kerbl-smartcoop](https://github.com/code723/kerbl-smartcoop)
+(Domain `kerbl_smartcoop`). Dasselbe Kerbl-Konto sollte aber nur in einer davon eingerichtet sein.
 
 ## Lizenz
 

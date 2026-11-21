@@ -5,7 +5,7 @@ Bibliothek (kerblwelt-api von stgarrity, PyPI) bestätigt - beide Produkte
 laufen über denselben Kerbl-Welt-Account/Backend.
 """
 
-DOMAIN = "kerbl_smartcoop"
+DOMAIN = "kerbl_smartcoop_ha"
 
 BASE_URL = "https://backend.kerbl-iot.com/api/v0.1"
 ENDPOINT_AUTH_SIGN_IN = "/auth/sign-in"

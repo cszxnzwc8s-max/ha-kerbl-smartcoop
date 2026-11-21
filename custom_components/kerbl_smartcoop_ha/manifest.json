@@ -1,6 +1,10 @@
 {
   "domain": "kerbl_smartcoop_ha",
   "name": "Kerbl SmartCoop HAS",
+  "categories": [
+    "pets",
+    "climate.fans_ventilation"
+  ],
   "codeowners": [
     "@cszxnzwc8s-max"
   ],

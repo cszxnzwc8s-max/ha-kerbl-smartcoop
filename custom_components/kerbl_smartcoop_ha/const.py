@@ -17,6 +17,10 @@ ENDPOINT_PARAMETER = "/device/smart-coop/{device_id}/parameter/{path}"
 
 UPDATE_INTERVAL_SECONDS = 60
 
+# Live-Verbindung (Socket.IO) wie in der Kerbl-App
+LIVE_URL = "https://app.kerbl-iot.com"
+LIVE_SOCKETIO_PATH = "/ws/v0.1/socket.io"
+
 # Bestätigt an echten Live-Daten (16.08.2026): Die /device-Antwort enthält
 # tatsächlich einen Schlüssel "smartCoop". Zusätzlich existiert ein
 # getrennter Schlüssel "smartChickenDoor" für das Türmodul - beide werden

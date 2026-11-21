@@ -31,6 +31,7 @@ class KerblSmartCoopCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
         self.client = client
         self.entry = entry
+        self.live = None  # KerblLiveConnection, wird in __init__.py gesetzt
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:

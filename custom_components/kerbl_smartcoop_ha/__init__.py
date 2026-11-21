@@ -13,6 +13,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import KerblSmartCoopApiClient
 from .const import DOMAIN
 from .coordinator import KerblSmartCoopCoordinator
+from .live import KerblLiveConnection
 from .exceptions import KerblApiError, KerblAuthError, KerblConnectionError
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,12 +38,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
+    # Live-Updates wie in der App; die minuetliche Abfrage bleibt als Netz.
+    coordinator.live = KerblLiveConnection(coordinator, session)
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    coordinator.live.start()
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
+        coordinator = hass.data[DOMAIN].pop(entry.entry_id)
+        live = getattr(coordinator, "live", None)
+        if live is not None:
+            await live.stop()
     return unload_ok

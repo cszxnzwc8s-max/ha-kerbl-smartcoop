@@ -38,7 +38,8 @@ und kann sich jederzeit ändern. Nutzung auf eigene Verantwortung.
 
 Das Kerbl-Demo-Gerät, das die Cloud bei jedem Konto mitliefert, wird ausgeblendet.
 
-Daten werden jede Minute abgefragt. Die Cloud aktualisiert die Helligkeit etwa alle 10 Minuten.
+Änderungen kommen live über dieselbe Verbindung wie in der Kerbl-App (Sensor „Live-Verbindung“).
+Zusätzlich wird jede Minute abgefragt, falls die Live-Verbindung abreißt.
 
 ## Installation über HACS
 

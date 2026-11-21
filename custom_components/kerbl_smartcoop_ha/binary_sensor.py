@@ -20,6 +20,7 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
@@ -50,6 +51,7 @@ async def async_setup_entry(
             entities.append(KerblSmartCoopFanRunningSensor(coordinator, device_id))
         if _get_path(device, "light.currentDimValue") is not None:
             entities.append(KerblSmartCoopLightOnSensor(coordinator, device_id))
+        entities.append(KerblSmartCoopLiveSensor(coordinator, device_id))
 
     async_add_entities(entities)
 
@@ -191,3 +193,25 @@ class KerblSmartCoopLightOnSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity)
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {"dimmwert": _get_path(self._device_data(), "light.currentDimValue")}
+
+
+class KerblSmartCoopLiveSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity):
+    """Steht die Live-Verbindung zur Kerbl-Cloud (sofortige Updates)?"""
+
+    _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, coordinator: KerblSmartCoopCoordinator, device_id: str) -> None:
+        super().__init__(coordinator, device_id)
+        self._attr_unique_id = f"{device_id}_live_connection"
+        self._attr_name = "Live-Verbindung"
+
+    @property
+    def is_on(self) -> bool:
+        live = getattr(self.coordinator, "live", None)
+        return bool(live and live.connected)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        live = getattr(self.coordinator, "live", None)
+        return {"letztes_live_update_modulzeit": getattr(live, "last_event", None)}

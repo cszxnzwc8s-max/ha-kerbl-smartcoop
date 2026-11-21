@@ -205,6 +205,16 @@ class _KerblSmartCoopBaseEntity(CoordinatorEntity[KerblSmartCoopCoordinator]):
         """False nur, wenn die Cloud das Modul ausdruecklich als offline meldet."""
         return self._device_data().get("isOnline") is not False
 
+    @property
+    def device_info(self) -> DeviceInfo:
+        data = self._device_data()
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._device_id)},
+            name=_device_name(data),
+            manufacturer="Kerbl",
+            model="SmartCoop",
+        )
+
 
 class _OfflineUnavailableMixin:
     """Live-Werte als 'nicht verfuegbar' zeigen, solange das Modul offline ist.
@@ -216,16 +226,6 @@ class _OfflineUnavailableMixin:
     @property
     def available(self) -> bool:
         return super().available and self._module_online()  # type: ignore[misc]
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        data = self._device_data()
-        return DeviceInfo(
-            identifiers={(DOMAIN, self._device_id)},
-            name=_device_name(data),
-            manufacturer="Kerbl",
-            model="SmartCoop",
-        )
 
 
 class KerblSmartCoopRawSensor(_KerblSmartCoopBaseEntity, SensorEntity):

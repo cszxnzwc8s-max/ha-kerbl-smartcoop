@@ -61,6 +61,50 @@ def _device_name(device: dict[str, Any]) -> str:
     return str(device.get("description") or device.get("id", "SmartCoop"))
 
 
+# Ja/Nein statt True/False. Nur fuer echte bool-Werte (siehe _translate).
+_JA_NEIN: dict[Any, str] = {True: "Ja", False: "Nein"}
+
+# Fehler-/Meldungscodes, bestaetigt ueber die "Meldungen"-Seite der App
+# (24.08., 29.08. + 06.11.2026). 4096 kam einmalig mit sehr altem Datum (2020)
+# vor - noch keine App-Bestaetigung, daher absichtlich nicht uebersetzt.
+ERROR_CODES: dict[int, str] = {
+    0: "Kein Fehler",
+    8: "Batterie schwach",
+    16: "Wasserheizung aktiv",  # Info-Meldung bei Frost, keine Stoerung
+    32: "Wasser leer",
+    512: "Klappenstörung",
+    2048: "Fremdlichtstörung",
+}
+
+
+def _code_list(raw: Any) -> list[int] | None:
+    """'[0]' / '[8,32]' / [8] -> Liste von Codes."""
+    if isinstance(raw, list):
+        items = raw
+    elif isinstance(raw, str):
+        try:
+            items = json.loads(raw)
+        except ValueError:
+            return None
+        if not isinstance(items, list):
+            items = [items]
+    elif isinstance(raw, int):
+        items = [raw]
+    else:
+        return None
+    return [i for i in items if isinstance(i, int)]
+
+
+def _format_codes(raw: Any, names: dict[int, str], none_text: str) -> Any:
+    codes = _code_list(raw)
+    if codes is None:
+        return raw
+    codes = [c for c in codes if c != 0]
+    if not codes:
+        return none_text
+    return ", ".join(names.get(c, f"Code {c}") for c in codes)
+
+
 # (Pfad, Anzeigename, Icon, Einheit, device_class, state_class)
 _LIVE_VALUE_SPECS: list[tuple[str, str, str, str | None, SensorDeviceClass | None, SensorStateClass | None]] = [
     ("waterHeater.waterTemperature", "Wassertemperatur", "mdi:coolant-temperature", "°C", SensorDeviceClass.TEMPERATURE, SensorStateClass.MEASUREMENT),
@@ -70,11 +114,11 @@ _LIVE_VALUE_SPECS: list[tuple[str, str, str, str | None, SensorDeviceClass | Non
 ]
 
 # (Pfad, Anzeigename, Icon, optionale Uebersetzungstabelle roh->Text)
-_SETTING_SPECS: list[tuple[str, str, str, dict[Any, str] | None]] = [
-    ("currentErrorReason", "Aktueller Fehler (roh)", "mdi:alert-octagon-outline", None),
+_SETTING_SPECS: list[tuple[str, str, str, dict[Any, str] | str | None]] = [
+    ("currentErrorReason", "Aktueller Fehler", "mdi:alert-octagon-outline", "error_list"),
     ("door.doorClosesInMin", "Tür – schließt in (Min)", "mdi:timer-alert-outline", None),
-    ("automaticPauseReason", "Automatik pausiert – Grund (roh)", "mdi:pause-circle-outline", None),
-    ("doDesiredAndActualStateMatch", "Einstellungen synchron", "mdi:sync", None),
+    ("automaticPauseReason", "Automatik pausiert – Grund", "mdi:pause-circle-outline", "pause_list"),
+    ("doDesiredAndActualStateMatch", "Einstellungen synchron", "mdi:sync", _JA_NEIN),
     ("door.type", "Tür – Typ", "mdi:door", {2: "Zahnstange"}),
     ("door.openingTime", "Tür – Öffnungszeit", "mdi:clock-start", None),
     ("door.weekendOpeningTime", "Tür – Öffnungszeit (Wochenende)", "mdi:clock-start", None),
@@ -82,9 +126,9 @@ _SETTING_SPECS: list[tuple[str, str, str, dict[Any, str] | None]] = [
     ("feeder.startTime", "Fütterung – Start", "mdi:clock-start", None),
     ("feeder.endTime", "Fütterung – Ende", "mdi:clock-end", None),
     ("feeder.feedingInterval", "Fütterung – Intervall (Min)", "mdi:timer-outline", None),
-    ("feeder.feedingActive", "Fütterung – aktiv", "mdi:food-drumstick", None),
-    ("feeder.isFeedFull", "Fütterung – Behälter voll", "mdi:food-drumstick-outline", None),
-    ("light.mode", "Licht – Modus", "mdi:lightbulb-outline", {4: "Keine Beleuchtung"}),
+    ("feeder.feedingActive", "Fütterung – aktiv", "mdi:food-drumstick", _JA_NEIN),
+    ("feeder.isFeedFull", "Fütterung – Behälter voll", "mdi:food-drumstick-outline", _JA_NEIN),
+    ("light.mode", "Licht – Modus", "mdi:lightbulb-outline", {1: "Modus 1", 2: "Modus 2", 3: "Modus 3", 4: "Keine Beleuchtung"}),
     ("light.darkTime", "Licht – Dunkelzeit (Std.)", "mdi:weather-night", None),
     ("light.currentDimValue", "Licht – Dimmwert", "mdi:brightness-6", None),
     ("power.onTime", "Strom – Einschaltzeit", "mdi:power-plug", None),
@@ -233,7 +277,7 @@ class KerblSmartCoopValueSensor(_KerblSmartCoopBaseEntity, SensorEntity):
         device_class: SensorDeviceClass | None = None,
         state_class: SensorStateClass | None = None,
         category: EntityCategory | None = None,
-        translations: dict[Any, str] | None = None,
+        translations: dict[Any, str] | str | None = None,
         offline_unavailable: bool = False,
     ) -> None:
         super().__init__(coordinator, device_id)
@@ -258,7 +302,15 @@ class KerblSmartCoopValueSensor(_KerblSmartCoopBaseEntity, SensorEntity):
     @property
     def native_value(self) -> Any:
         value = _get_path(self._device_data(), self._path)
-        return self._translations.get(value, value)
+        if self._translations == "error_list":
+            return _format_codes(value, ERROR_CODES, "Kein Fehler")
+        if self._translations == "pause_list":
+            return _format_codes(value, {}, "Nicht pausiert")
+        if isinstance(value, bool):
+            return (self._translations or {}).get(value, value)
+        if isinstance(self._translations, dict):
+            return self._translations.get(value, value)
+        return value
 
 
 class KerblSmartCoopLastErrorSensor(_KerblSmartCoopBaseEntity, SensorEntity):
@@ -267,17 +319,7 @@ class KerblSmartCoopLastErrorSensor(_KerblSmartCoopBaseEntity, SensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:alert-circle-outline"
 
-    # Bestaetigt ueber die "Meldungen"-Seite der App (24.08., 29.08. + 06.11.2026):
-    _ERROR_CODES: dict[int, str] = {
-        0: "Kein Fehler",
-        8: "Batterie schwach",
-        16: "Wasserheizung aktiv",  # Info-Meldung bei Frost, keine Stoerung (06.11.2026)
-        32: "Wasser leer",
-        512: "Klappenstörung",
-        2048: "Fremdlichtstörung",
-        # 4096 kam einmalig mit einem sehr alten Datum (2020) vor - noch
-        # keine App-Bestaetigung fuer den Text, absichtlich nicht geraten.
-    }
+    _ERROR_CODES = ERROR_CODES
 
     def __init__(self, coordinator: KerblSmartCoopCoordinator, device_id: str) -> None:
         super().__init__(coordinator, device_id)

@@ -22,8 +22,11 @@ und kann sich jederzeit ändern. Nutzung auf eigene Verantwortung.
 **Messwerte**
 - Lufttemperatur, Wassertemperatur, Helligkeit (Sensor im Stall, %), Akkuspannung
 
+**Einstellbar** (Zahlenfelder, wie in der App)
+- Tür: Öffnungshelligkeit (10–60 %) und Schließhelligkeit (1–15 %)
+
 **Einstellungen (nur lesend)**
-- Tür: Öffnungs-/Schließhelligkeit, Öffnungszeiten, Schließverzögerung, Typ
+- Tür: Öffnungszeiten, Schließverzögerung, Typ
 - Lüfter: Leistung, Intervall, Laufzeit, Temperaturschwellen
 - Fütterung: Start/Ende, Intervall, Anzahl Tiere, Menge, Behälterstatus
 - Licht und Stromversorgung: Modus, Dunkelzeit, Schaltzeiten, Energiesparschwelle
@@ -59,7 +62,8 @@ Daten werden jede Minute abgefragt. Die Cloud aktualisiert die Helligkeit etwa a
 
 ## Grenzen
 
-- Steuern (Tür, Licht, Einstellungen) ist noch nicht enthalten.
+- Tür auf/zu, Licht und weitere Einstellungen lassen sich noch nicht steuern.
+- Neue Einstellungen erreichen den Stall erst, wenn das Modul online ist.
 - Die Tür-Steuerung der Kerbl-Cloud ist ein Umschalter ohne Positionsrückmeldung.
 - „Lüfter läuft“ ist abgeleitet, nicht direkt gemessen.
 

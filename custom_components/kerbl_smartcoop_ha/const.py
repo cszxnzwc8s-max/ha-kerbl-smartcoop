@@ -11,6 +11,9 @@ BASE_URL = "https://backend.kerbl-iot.com/api/v0.1"
 ENDPOINT_AUTH_SIGN_IN = "/auth/sign-in"
 ENDPOINT_AUTH_REFRESH = "/auth/refresh"
 ENDPOINT_DEVICES = "/device"
+# Einstellung schreiben, wie die Kerbl-App es tut (mitgeschnitten 21.11.2026):
+# PATCH .../device/smart-coop/<modul-id>/parameter/<punkt.pfad>  Body {"value": n}
+ENDPOINT_PARAMETER = "/device/smart-coop/{device_id}/parameter/{path}"
 
 UPDATE_INTERVAL_SECONDS = 60
 

@@ -21,6 +21,7 @@ from .const import (
     ENDPOINT_AUTH_REFRESH,
     ENDPOINT_AUTH_SIGN_IN,
     ENDPOINT_DEVICES,
+    ENDPOINT_PARAMETER,
 )
 from .exceptions import KerblApiError, KerblAuthError, KerblConnectionError
 
@@ -107,5 +108,37 @@ class KerblSmartCoopApiClient:
                         )
                 text = await resp.text()
                 raise KerblApiError(f"Geraeteabfrage fehlgeschlagen ({resp.status}): {text}")
+        except aiohttp.ClientError as err:
+            raise KerblConnectionError(f"Verbindung fehlgeschlagen: {err}") from err
+
+    async def async_set_parameter(self, device_id: str, path: str, value: int) -> None:
+        """Eine Einstellung am Geraet setzen (z.B. door.relativeOpeningBrightness).
+
+        Entspricht dem, was die Kerbl-App beim Aendern einer Einstellung sendet.
+        Die Cloud uebertraegt den Wert ans Modul, sobald es online ist.
+        """
+        if not self._access_token:
+            raise KerblAuthError("Nicht angemeldet")
+        url = f"{BASE_URL}{ENDPOINT_PARAMETER.format(device_id=device_id, path=path)}"
+        payload = {"value": value}
+        try:
+            for attempt in range(2):
+                headers = {"Authorization": f"Bearer {self._access_token}"}
+                async with self._session.patch(url, headers=headers, json=payload) as resp:
+                    if resp.status == 401 and attempt == 0:
+                        await self._refresh()
+                        continue
+                    text = await resp.text()
+                    if resp.status != 200:
+                        raise KerblApiError(
+                            f"Einstellung {path} konnte nicht gesetzt werden ({resp.status}): {text}"
+                        )
+                    try:
+                        data = await resp.json(content_type=None)
+                    except ValueError:
+                        data = {}
+                    if isinstance(data, dict) and data.get("success") is False:
+                        raise KerblApiError(f"Kerbl hat {path}={value} abgelehnt: {text}")
+                    return
         except aiohttp.ClientError as err:
             raise KerblConnectionError(f"Verbindung fehlgeschlagen: {err}") from err

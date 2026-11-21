@@ -7,9 +7,8 @@ Demo-Geraet ("myDemo", identifier "0000000000", connectionVersion "demo")
 mit - das wird hier bewusst ausgeblendet, damit keine Fantasie-Sensoren
 entstehen.
 
-Aktuell nur lesende Sensoren (Ist-Werte + aktuelle Einstellungen). Steuerung
-(Tuer auf/zu, Einstellungen aendern) ist bewusst noch nicht enthalten, da die
-Schreib-Befehle der Kerbl-Welt-API noch nicht bestaetigt sind.
+Lesende Sensoren (Ist-Werte + aktuelle Einstellungen). Einstellbare Werte
+(Oeffnungs-/Schliesshelligkeit der Tuer) liegen in number.py.
 """
 
 from __future__ import annotations
@@ -82,8 +81,6 @@ _SETTING_SPECS: list[tuple[str, str, str, dict[Any, str] | None]] = [
     ("door.type", "Tür – Typ", "mdi:door", {2: "Zahnstange"}),
     ("door.openingTime", "Tür – Öffnungszeit", "mdi:clock-start", None),
     ("door.weekendOpeningTime", "Tür – Öffnungszeit (Wochenende)", "mdi:clock-start", None),
-    ("door.relativeOpeningBrightness", "Tür – Öffnungshelligkeit (%)", "mdi:brightness-5", None),
-    ("door.relativeClosingBrightness", "Tür – Schließhelligkeit (%)", "mdi:brightness-3", None),
     ("door.closingDelayDuration", "Tür – Schließverzögerung (Min)", "mdi:timer-outline", None),
     ("door.state", "Tür – Rohstatus (unbekannte Kodierung)", "mdi:help-circle-outline", None),
     ("fan.power", "Lüfter – Leistung (%)", "mdi:fan", None),

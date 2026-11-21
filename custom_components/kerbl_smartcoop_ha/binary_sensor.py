@@ -27,7 +27,6 @@ from .const import DOMAIN
 from .coordinator import KerblSmartCoopCoordinator
 from .sensor import (
     _KerblSmartCoopBaseEntity,
-    _OfflineUnavailableMixin,
     _get_path,
     _is_demo_device,
 )
@@ -64,7 +63,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class KerblSmartCoopDoorSensor(_OfflineUnavailableMixin, _KerblSmartCoopBaseEntity, BinarySensorEntity):
+class KerblSmartCoopDoorSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity):
     """Tuer offen/geschlossen, dekodiert aus dem rohen Zahlencode."""
 
     _attr_device_class = BinarySensorDeviceClass.DOOR
@@ -99,7 +98,7 @@ class KerblSmartCoopDoorSensor(_OfflineUnavailableMixin, _KerblSmartCoopBaseEnti
         }
 
 
-class KerblSmartCoopFanRunningSensor(_OfflineUnavailableMixin, _KerblSmartCoopBaseEntity, BinarySensorEntity):
+class KerblSmartCoopFanRunningSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity):
     """Laeuft der Luefter gerade?
 
     Drei Signale, die zusammen die App-Logik nachbilden (App-Screenshots vom
@@ -180,7 +179,7 @@ class KerblSmartCoopFanRunningSensor(_OfflineUnavailableMixin, _KerblSmartCoopBa
         }
 
 
-class KerblSmartCoopLightOnSensor(_OfflineUnavailableMixin, _KerblSmartCoopBaseEntity, BinarySensorEntity):
+class KerblSmartCoopLightOnSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity):
     """Ist das Licht gerade an? Basiert auf light.currentDimValue (0 = aus)."""
 
     _attr_device_class = BinarySensorDeviceClass.LIGHT

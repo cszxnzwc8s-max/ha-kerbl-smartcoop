@@ -14,6 +14,7 @@ liegen in number.py (Zahlen) und switch.py (Ein/Aus).
 from __future__ import annotations
 
 import json
+from datetime import timedelta
 import logging
 from typing import Any
 
@@ -28,11 +29,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, REDACT_KEYS
 from .coordinator import KerblSmartCoopCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+_GRACE = timedelta(minutes=10)
 
 # Bekannte Demo-Geraete von Kerbl, die die Cloud immer mitliefert.
 _DEMO_IDENTIFIERS = {"0000000000"}
@@ -212,6 +216,15 @@ class _KerblSmartCoopBaseEntity(CoordinatorEntity[KerblSmartCoopCoordinator]):
             if str(device.get("id")) == self._device_id:
                 return device
         return {}
+
+    @property
+    def available(self) -> bool:
+        """Kurze Cloud-Aussetzer (bis 10 Min) ueberbruecken statt sofort
+        'nicht verfuegbar' zu zeigen."""
+        if self.coordinator.last_update_success:
+            return True
+        last = getattr(self.coordinator, "last_success", None)
+        return last is not None and dt_util.utcnow() - last < _GRACE
 
     def _module_online(self) -> bool:
         """False nur, wenn die Cloud das Modul ausdruecklich als offline meldet."""

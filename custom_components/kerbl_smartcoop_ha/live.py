@@ -19,6 +19,7 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 import socketio
+from homeassistant.util import dt as dt_util
 
 from .const import LIVE_SOCKETIO_PATH, LIVE_URL
 
@@ -141,4 +142,5 @@ class KerblLiveConnection:
         else:
             return  # unbekanntes Geraet (z.B. Demo) - ignorieren
         self.last_event = data.get("currentTime")
+        self._coordinator.last_success = dt_util.utcnow()
         self._coordinator.async_set_updated_data({**current, "devices": devices})

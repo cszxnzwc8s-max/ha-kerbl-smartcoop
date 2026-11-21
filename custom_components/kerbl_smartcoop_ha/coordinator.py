@@ -11,6 +11,7 @@ from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .api import KerblSmartCoopApiClient
 from .const import DEVICE_LIST_KEYS, DOMAIN, UPDATE_INTERVAL_SECONDS
@@ -35,6 +36,7 @@ class KerblSmartCoopCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.client = client
         self.entry = entry
         self.live = None  # KerblLiveConnection, wird in __init__.py gesetzt
+        self.last_success = None  # Zeitpunkt der letzten erfolgreichen Daten
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
@@ -78,4 +80,5 @@ class KerblSmartCoopCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 list(raw.keys()),
             )
 
+        self.last_success = dt_util.utcnow()
         return {"devices": devices, "raw_top_level_keys": list(raw.keys())}

@@ -36,10 +36,6 @@ _LOGGER = logging.getLogger(__name__)
 # Bekannte Demo-Geraete von Kerbl, die die Cloud immer mitliefert.
 _DEMO_IDENTIFIERS = {"0000000000"}
 
-# Offizielles Kerbl-Logo (von kerbl.com/en, Bereich "Our brands") - fuer
-# entity_picture, damit die Sensoren im Dashboard das echte Logo zeigen
-# koennen (die Karte muss dafuer "show_entity_picture: true" gesetzt haben).
-_KERBL_LOGO_URL = "https://www.kerbl.com/_ipx/h_64/dam/v/bKJ3mNrt/%3Fv=7598473EDA21ECFEB0AB1C698E2E7092D9ED8B0E"
 
 
 def _is_demo_device(device: dict[str, Any]) -> bool:
@@ -153,7 +149,7 @@ async def async_setup_entry(
 
 
 class _KerblSmartCoopBaseEntity(CoordinatorEntity[KerblSmartCoopCoordinator]):
-    _attr_entity_picture = _KERBL_LOGO_URL
+    """Gemeinsame Basis; jede Entitaet zeigt ihr eigenes Symbol (kein Logo)."""
 
     def __init__(self, coordinator: KerblSmartCoopCoordinator, device_id: str) -> None:
         super().__init__(coordinator)

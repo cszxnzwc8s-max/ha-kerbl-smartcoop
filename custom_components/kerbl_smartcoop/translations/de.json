@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Kerbl SmartCoop verbinden",
+        "description": "Melde dich mit deinem Kerbl-Welt-Konto an (dasselbe Konto wie in der Kerbl-Welt-App).",
+        "data": {
+          "email": "E-Mail",
+          "password": "Passwort"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Ungültige E-Mail oder Passwort",
+      "cannot_connect": "Verbindung zum Kerbl-Welt-Server fehlgeschlagen",
+      "unknown": "Unerwarteter Fehler"
+    },
+    "abort": {
+      "already_configured": "Dieses Konto ist bereits eingerichtet"
+    }
+  }
+}

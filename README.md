@@ -38,7 +38,7 @@ Daten werden jede Minute abgefragt. Die Cloud aktualisiert die Helligkeit etwa a
 
 1. HACS → Menü (⋮) → **Benutzerdefinierte Repositories**
 2. URL `https://github.com/cszxnzwc8s-max/ha-kerbl-smartcoop`, Typ **Integration**
-3. „Kerbl SmartCoop“ herunterladen und Home Assistant neu starten
+3. „Kerbl SmartCoop HA“ herunterladen und Home Assistant neu starten
 4. Einstellungen → Geräte & Dienste → Integration hinzufügen → **Kerbl SmartCoop HA**
 5. Mit dem Kerbl-Welt-Konto (E-Mail und Passwort aus der App) anmelden
 

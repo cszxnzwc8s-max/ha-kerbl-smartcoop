@@ -8,7 +8,7 @@ mit - das wird hier bewusst ausgeblendet, damit keine Fantasie-Sensoren
 entstehen.
 
 Lesende Sensoren (Ist-Werte + aktuelle Einstellungen). Einstellbare Werte
-(Oeffnungs-/Schliesshelligkeit der Tuer) liegen in number.py.
+liegen in number.py (Zahlen) und switch.py (Ein/Aus).
 """
 
 from __future__ import annotations
@@ -77,18 +77,10 @@ _SETTING_SPECS: list[tuple[str, str, str, dict[Any, str] | None]] = [
     ("door.type", "Tür – Typ", "mdi:door", {2: "Zahnstange"}),
     ("door.openingTime", "Tür – Öffnungszeit", "mdi:clock-start", None),
     ("door.weekendOpeningTime", "Tür – Öffnungszeit (Wochenende)", "mdi:clock-start", None),
-    ("door.closingDelayDuration", "Tür – Schließverzögerung (Min)", "mdi:timer-outline", None),
     ("door.state", "Tür – Rohstatus (unbekannte Kodierung)", "mdi:help-circle-outline", None),
-    ("fan.power", "Lüfter – Leistung (%)", "mdi:fan", None),
-    ("fan.interval", "Lüfter – Intervall (Min)", "mdi:fan-clock", None),
-    ("fan.onDuration", "Lüfter – Laufzeit je Intervall (Min)", "mdi:fan-clock", None),
-    ("fan.alwaysOffBelowTemperature", "Lüfter – Aus unter (°C)", "mdi:thermometer-low", None),
-    ("fan.alwaysOnAboveTemperature", "Lüfter – An über (°C)", "mdi:thermometer-high", None),
     ("feeder.startTime", "Fütterung – Start", "mdi:clock-start", None),
     ("feeder.endTime", "Fütterung – Ende", "mdi:clock-end", None),
     ("feeder.feedingInterval", "Fütterung – Intervall (Min)", "mdi:timer-outline", None),
-    ("feeder.animalCount", "Fütterung – Anzahl Tiere", "mdi:google-circles-communities", None),
-    ("feeder.amountPerAnimal", "Fütterung – Menge pro Tier (%)", "mdi:scale", None),
     ("feeder.feedingActive", "Fütterung – aktiv", "mdi:food-drumstick", None),
     ("feeder.isFeedFull", "Fütterung – Behälter voll", "mdi:food-drumstick-outline", None),
     ("light.mode", "Licht – Modus", "mdi:lightbulb-outline", {4: "Keine Beleuchtung"}),
@@ -96,7 +88,6 @@ _SETTING_SPECS: list[tuple[str, str, str, dict[Any, str] | None]] = [
     ("light.currentDimValue", "Licht – Dimmwert", "mdi:brightness-6", None),
     ("power.onTime", "Strom – Einschaltzeit", "mdi:power-plug", None),
     ("power.offTime", "Strom – Ausschaltzeit", "mdi:power-plug-off", None),
-    ("power.energySavingActiveBelow", "Strom – Energiesparmodus unter (V)", "mdi:battery-low", None),
 ]
 
 

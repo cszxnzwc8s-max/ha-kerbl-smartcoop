@@ -22,11 +22,14 @@ und kann sich jederzeit ändern. Nutzung auf eigene Verantwortung.
 **Messwerte**
 - Lufttemperatur, Wassertemperatur, Helligkeit (Sensor im Stall, %), Akkuspannung
 
-**Einstellbar** (Zahlenfelder, wie in der App)
-- Tür: Öffnungshelligkeit (10–60 %) und Schließhelligkeit (1–15 %)
+**Einstellbar** (wie in der App, Werte gehen ans Modul, sobald es online ist)
+- Tür: Öffnungshelligkeit (10–60 %), Schließhelligkeit (1–15 %), Schließverzögerung (0–60 min)
+- Lüfter: Leistung, Intervall, Laufzeit, Aus unter / Dauerbetrieb über (°C), Intervall auch nachts (Schalter)
+- Fütterung: Anzahl Tiere, Menge pro Tier
+- Strom: Energiesparmodus unter (V)
 
 **Einstellungen (nur lesend)**
-- Tür: Öffnungszeiten, Schließverzögerung, Typ
+- Tür: Öffnungszeiten, Typ
 - Lüfter: Leistung, Intervall, Laufzeit, Temperaturschwellen
 - Fütterung: Start/Ende, Intervall, Anzahl Tiere, Menge, Behälterstatus
 - Licht und Stromversorgung: Modus, Dunkelzeit, Schaltzeiten, Energiesparschwelle

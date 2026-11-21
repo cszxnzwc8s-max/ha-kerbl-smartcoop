@@ -111,7 +111,7 @@ class KerblSmartCoopApiClient:
         except aiohttp.ClientError as err:
             raise KerblConnectionError(f"Verbindung fehlgeschlagen: {err}") from err
 
-    async def async_set_parameter(self, device_id: str, path: str, value: int) -> None:
+    async def async_set_parameter(self, device_id: str, path: str, value: int | float) -> None:
         """Eine Einstellung am Geraet setzen (z.B. door.relativeOpeningBrightness).
 
         Entspricht dem, was die Kerbl-App beim Aendern einer Einstellung sendet.

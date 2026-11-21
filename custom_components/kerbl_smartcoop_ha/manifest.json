@@ -1,6 +1,9 @@
 {
   "domain": "kerbl_smartcoop_ha",
   "name": "Kerbl SmartCoop HAS",
+  "after_dependencies": [
+    "recorder"
+  ],
   "categories": [
     "pets",
     "climate.fans_ventilation"
@@ -16,5 +19,5 @@
   "requirements": [
     "python-socketio>=5.11,<6"
   ],
-  "version": "0.13.2"
+  "version": "0.14.0"
 }

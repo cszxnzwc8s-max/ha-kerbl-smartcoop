@@ -182,6 +182,18 @@ async def async_setup_entry(
         if error_history_raw:
             entities.append(KerblSmartCoopLastErrorSensor(coordinator, device_id))
 
+        if _get_path(device, "door.state") is not None:
+            from .door_times import DOOR_CLOSED, DOOR_OPEN, KerblSmartCoopDoorTimeSensor
+
+            entities.append(KerblSmartCoopDoorTimeSensor(
+                coordinator, device_id, target_raw=DOOR_OPEN, target_ha_state="on",
+                key="opened", name="Tür – zuletzt geöffnet", icon="mdi:door-open",
+            ))
+            entities.append(KerblSmartCoopDoorTimeSensor(
+                coordinator, device_id, target_raw=DOOR_CLOSED, target_ha_state="off",
+                key="closed", name="Tür – zuletzt geschlossen", icon="mdi:door-closed",
+            ))
+
     if not entities:
         _LOGGER.warning("Keine SmartCoop-Geraete gefunden - Setup war erfolgreich, aber es wurden (noch) keine Sensoren angelegt.")
 

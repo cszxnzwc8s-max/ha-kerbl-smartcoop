@@ -18,9 +18,15 @@ from .exceptions import KerblApiError, KerblAuthError, KerblConnectionError
 
 _LOGGER = logging.getLogger(__name__)
 
-# Entitaeten frueherer Versionen, die es nicht mehr gibt (Suffix der unique_id).
-# Seit v0.16.0 deckt die Tor/Tuer-Entitaet (cover) Zustand und Zeiten ab.
-_REMOVED_UNIQUE_ID_SUFFIXES = ("_door_state", "_door_last_opened", "_door_last_closed")
+# Entitaeten frueherer Versionen, die es nicht mehr gibt: (Plattform, Suffix der
+# unique_id). Seit v0.16 deckt die Tor/Tuer-Entitaet (cover) Zustand, Fahrt und
+# Zeiten ab; der Roh-Code steht dort als Attribut "roh_status".
+_REMOVED_ENTITIES = (
+    ("binary_sensor", "_door_state"),
+    ("sensor", "_door_state"),
+    ("sensor", "_door_last_opened"),
+    ("sensor", "_door_last_closed"),
+)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.NUMBER, Platform.SWITCH, Platform.COVER]
 
@@ -53,7 +59,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 def _remove_retired_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
     registry = er.async_get(hass)
     for entity in er.async_entries_for_config_entry(registry, entry.entry_id):
-        if entity.unique_id.endswith(_REMOVED_UNIQUE_ID_SUFFIXES):
+        if any(
+            entity.domain == domain and entity.unique_id.endswith(suffix)
+            for domain, suffix in _REMOVED_ENTITIES
+        ):
             _LOGGER.debug("Entferne veraltete Entitaet %s", entity.entity_id)
             registry.async_remove(entity.entity_id)
 

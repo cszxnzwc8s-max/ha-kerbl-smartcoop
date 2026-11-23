@@ -126,7 +126,6 @@ _SETTING_SPECS: list[tuple[str, str, str, dict[Any, str] | str | None]] = [
     ("door.type", "Tür – Typ", "mdi:door", {2: "Zahnstange"}),
     ("door.openingTime", "Tür – Öffnungszeit", "mdi:clock-start", None),
     ("door.weekendOpeningTime", "Tür – Öffnungszeit (Wochenende)", "mdi:clock-start", None),
-    ("door.state", "Tür – Rohstatus (unbekannte Kodierung)", "mdi:help-circle-outline", None),
     ("feeder.startTime", "Fütterung – Start", "mdi:clock-start", None),
     ("feeder.endTime", "Fütterung – Ende", "mdi:clock-end", None),
     ("feeder.feedingInterval", "Fütterung – Intervall (Min)", "mdi:timer-outline", None),

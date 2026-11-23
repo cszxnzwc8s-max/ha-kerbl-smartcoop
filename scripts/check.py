@@ -33,12 +33,24 @@ c = Coord()
 # Tuer-Cover: Fahrt wird angezeigt, Endlage gemerkt
 cv = mods["cover"]
 cov = cv.KerblSmartCoopDoorCover.__new__(cv.KerblSmartCoopDoorCover)
-cov.coordinator = c; cov._device_id = "d"; cov._last_closed = None
+cov.coordinator = c; cov._device_id = "d"; cov._last_closed = None; cov._reported_codes = set()
 seq = [(67, "closed"), (111, "opening"), (79, "open"), (99, "closing"), (67, "closed")]
 for raw, cover_state in seq:
     c.data["devices"][0]["door"]["state"] = raw
     got = "opening" if cov.is_opening else "closing" if cov.is_closing else ("closed" if cov.is_closed else "open")
     assert got == cover_state, (raw, got)
+
+# unbekannter Code: Anzeige bleibt beim letzten Stand, Code steht im Attribut
+c.data["devices"][0]["door"]["state"] = 4242
+assert cov.is_closed is True and not cov.is_opening and not cov.is_closing
+assert cov.extra_state_attributes["roh_status"] == 4242 and 4242 in cov._reported_codes
+
+# Aufraeumen trifft nur abgeschaffte Entitaeten
+init = importlib.import_module(PKG)
+keep = {("sensor", "x_door_doorClosesInMin"), ("cover", "x_door_cover"), ("number", "x_door_relativeOpeningBrightness")}
+gone = {("binary_sensor", "x_door_state"), ("sensor", "x_door_state"), ("sensor", "x_door_last_opened")}
+hit = lambda d, u: any(d == dd and u.endswith(sx) for dd, sx in init._REMOVED_ENTITIES)
+assert all(hit(*e) for e in gone) and not any(hit(*e) for e in keep)
 
 if errors:
     print("FEHLER:", *errors, sep="\n  ")

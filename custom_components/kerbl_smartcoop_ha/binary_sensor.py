@@ -1,12 +1,6 @@
-"""Tuer-Status als Binary Sensor fuer Kerbl SmartCoop.
+"""Binary Sensoren fuer Kerbl SmartCoop: Luefter laeuft, Licht an, Live-Verbindung.
 
-Kodierung live bestaetigt am 22.08.2026:
-  79 -> offen
-  67 -> geschlossen (auch der Wert, den das Kerbl-Demo-Geraet dauerhaft zeigt)
-
-Jeder andere Wert (z.B. waehrend der Fahrt oder bei einer Stoerung) wird
-bewusst als "unbekannt" (None) behandelt statt geraten - lieber ehrlich
-unbekannt als eine falsche Tuer-Stellung anzuzeigen.
+Die Tuer steht seit v0.15.0 als Tor/Tuer-Entitaet in cover.py.
 """
 
 from __future__ import annotations
@@ -20,23 +14,15 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN
 from .coordinator import KerblSmartCoopCoordinator
 from .sensor import (
     _KerblSmartCoopBaseEntity,
     _get_path,
     _is_demo_device,
 )
-
-_DOOR_STATE_OPEN = 79
-_DOOR_STATE_CLOSED = 67
-# Waehrend der Fahrt (je ca. 20 s), seit Oktober 2026 vielfach bestaetigt:
-_DOOR_STATE_CLOSING = 99
-_DOOR_STATE_OPENING = 111
 
 
 PARALLEL_UPDATES = 0
@@ -52,8 +38,6 @@ async def async_setup_entry(
         if _is_demo_device(device):
             continue
         device_id = str(device.get("id"))
-        if _get_path(device, "door.state") is not None:
-            entities.append(KerblSmartCoopDoorSensor(coordinator, device_id))
         if _get_path(device, "fan.remainingOnTime") is not None:
             entities.append(KerblSmartCoopFanRunningSensor(coordinator, device_id))
         if _get_path(device, "light.currentDimValue") is not None:
@@ -61,50 +45,6 @@ async def async_setup_entry(
         entities.append(KerblSmartCoopLiveSensor(coordinator, device_id))
 
     async_add_entities(entities)
-
-
-class KerblSmartCoopDoorSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity, RestoreEntity):
-    """Tuer offen/geschlossen.
-
-    Waehrend der etwa 20 Sekunden Fahrt (111 = oeffnet, 99 = schliesst, seit
-    Oktober 2026 vielfach bestaetigt) bleibt der bisherige Zustand stehen,
-    statt kurz auf 'unbekannt' zu springen. Die Fahrt selbst zeigt die
-    Tor/Tuer-Entitaet (cover.py).
-    """
-
-    _attr_device_class = BinarySensorDeviceClass.DOOR
-
-    def __init__(self, coordinator: KerblSmartCoopCoordinator, device_id: str) -> None:
-        super().__init__(coordinator, device_id)
-        self._attr_unique_id = f"{device_id}_door_state"
-        self._attr_name = "Tür"
-        self._last_stable: bool | None = None
-
-    async def async_added_to_hass(self) -> None:
-        await super().async_added_to_hass()
-        last = await self.async_get_last_state()
-        if last and last.state in ("on", "off"):
-            self._last_stable = last.state == "on"
-
-    @property
-    def is_on(self) -> bool | None:
-        """True = offen, False = geschlossen; waehrend der Fahrt der alte Zustand."""
-        raw = _get_path(self._device_data(), "door.state")
-        if raw == _DOOR_STATE_OPEN:
-            self._last_stable = True
-        elif raw == _DOOR_STATE_CLOSED:
-            self._last_stable = False
-        return self._last_stable
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        raw = _get_path(self._device_data(), "door.state")
-        bewegung = None
-        if raw == _DOOR_STATE_CLOSING:
-            bewegung = "schließt"
-        elif raw == _DOOR_STATE_OPENING:
-            bewegung = "öffnet"
-        return {"roh_status": raw, "bewegung": bewegung}
 
 
 class KerblSmartCoopFanRunningSensor(_KerblSmartCoopBaseEntity, BinarySensorEntity):

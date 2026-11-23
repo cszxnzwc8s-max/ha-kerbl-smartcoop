@@ -10,7 +10,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
 from .coordinator import KerblSmartCoopCoordinator
 from .number import async_write_parameter
 from .sensor import _KerblSmartCoopBaseEntity, _get_path, _is_demo_device

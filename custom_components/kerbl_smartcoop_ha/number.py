@@ -28,7 +28,6 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
 from .coordinator import KerblSmartCoopCoordinator
 from .exceptions import KerblApiError, KerblAuthError, KerblConnectionError
 from .sensor import _KerblSmartCoopBaseEntity, _get_path, _is_demo_device

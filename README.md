@@ -14,7 +14,7 @@ und kann sich jederzeit ändern. Nutzung auf eigene Verantwortung.
 ## Was die Integration liefert
 
 **Status**
-- Tür offen/geschlossen (Binary Sensor), inkl. Bewegungsrichtung „öffnet“/„schließt“ als Attribut
+- Tür als Tor/Tür-Entität: offen / öffnet / schließt / geschlossen – mit Verlauf und Aktivität jeder Fahrt
 - Lüfter läuft (abgeleitet aus Intervall-, Dauerlauf- und Nacht-Logik)
 - Licht an/aus
 - Letzter Fehlercode als Klartext, mit den letzten 10 Meldungen als Attribut

@@ -40,6 +40,16 @@ for raw, cover_state in seq:
     got = "opening" if cov.is_opening else "closing" if cov.is_closing else ("closed" if cov.is_closed else "open")
     assert got == cover_state, (raw, got)
 
+# blockiert (63): immer "nicht ganz zu", Stoerung im Wortlaut der App
+c.data["devices"][0]["door"]["state"] = 67; assert cov.is_closed is True
+c.data["devices"][0]["door"]["state"] = 63
+c.data["devices"][0]["currentErrorReason"] = "[512]"
+assert cov.is_closed is False and 63 not in cov._reported_codes
+assert cov.extra_state_attributes["stoerung"] == "Klappenstörung"
+c.data["devices"][0]["currentErrorReason"] = "[16]"
+assert "stoerung" not in cov.extra_state_attributes   # Wasserheizung ist keine Tuer-Stoerung
+c.data["devices"][0]["door"]["state"] = 67; assert cov.is_closed is True
+
 # unbekannter Code: Anzeige bleibt beim letzten Stand, Code steht im Attribut
 c.data["devices"][0]["door"]["state"] = 4242
 assert cov.is_closed is True and not cov.is_opening and not cov.is_closing

@@ -2,6 +2,8 @@
 
 Zustaende aus door.state (seit Oktober 2026 vielfach bestaetigt):
   79 = offen, 67 = geschlossen, 111 = oeffnet, 99 = schliesst
+  63 = bei Klappenstoerung stehengeblieben (23.11.2026: Dreck in der Fuehrung,
+       Tuer kurz vor zu verklemmt) -> Stellung unbekannt, also "nicht ganz zu"
 
 Vorerst nur Anzeige, ohne Auf/Zu-Knoepfe. Die Steuerung kommt erst nach dem
 Test am echten Stall dazu (Kerbl-Befehl doorControl ist ein Umschalter).
@@ -18,7 +20,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .coordinator import KerblSmartCoopCoordinator
-from .sensor import _KerblSmartCoopBaseEntity, _get_path, _is_demo_device
+from .sensor import ERROR_CODES, _KerblSmartCoopBaseEntity, _code_list, _get_path, _is_demo_device
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,7 +30,13 @@ DOOR_OPEN = 79
 DOOR_CLOSED = 67
 DOOR_OPENING = 111
 DOOR_CLOSING = 99
-_KNOWN_CODES = {DOOR_OPEN, DOOR_CLOSED, DOOR_OPENING, DOOR_CLOSING}
+DOOR_BLOCKED = 63
+_KNOWN_CODES = {DOOR_OPEN, DOOR_CLOSED, DOOR_OPENING, DOOR_CLOSING, DOOR_BLOCKED}
+
+# Fehler, die die Tuer betreffen und an ihr als "Stoerung" angezeigt werden
+# (Wortlaut wie in der Kerbl-App): Klappenstoerung, Fremdlichtstoerung
+# (Lichtsensor steuert die Tuer), Batterie schwach.
+_DOOR_FAULTS = (512, 2048, 8)
 
 
 async def async_setup_entry(
@@ -87,10 +95,21 @@ class KerblSmartCoopDoorCover(_KerblSmartCoopBaseEntity, CoverEntity, RestoreEnt
         raw = self._raw()
         if raw == DOOR_CLOSED:
             self._last_closed = True
-        elif raw == DOOR_OPEN:
+        elif raw in (DOOR_OPEN, DOOR_BLOCKED):
+            # blockiert: Stellung unklar -> sicher als "nicht ganz zu" zeigen
             self._last_closed = False
         return self._last_closed
 
+    def _fault_text(self) -> str | None:
+        codes = _code_list(self._device_data().get("currentErrorReason")) or []
+        texts = [ERROR_CODES[c] for c in _DOOR_FAULTS if c in codes]
+        return ", ".join(texts) or None
+
     @property
-    def extra_state_attributes(self) -> dict[str, int | None]:
-        return {"roh_status": self._raw()}
+    def extra_state_attributes(self) -> dict[str, int | str | None]:
+        attrs: dict[str, int | str | None] = {"roh_status": self._raw()}
+        fault = self._fault_text()
+        if fault:
+            # nur bei Stoerung vorhanden, damit die Kachel sonst nichts anzeigt
+            attrs["stoerung"] = fault
+        return attrs

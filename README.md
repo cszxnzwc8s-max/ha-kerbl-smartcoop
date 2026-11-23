@@ -62,7 +62,7 @@ Zusätzlich wird jede Minute abgefragt, falls die Live-Verbindung abreißt.
 | 512 | Klappenstörung |
 | 2048 | Fremdlichtstörung (z. B. Taschenlampe im Stall) |
 
-**Tür** (`door.state`): 79 = offen, 67 = geschlossen, 111 = öffnet, 99 = schließt.
+**Tür** (`door.state`): 79 = offen, 67 = geschlossen, 111 = öffnet, 99 = schließt, 63 = bei Klappenstörung stehengeblieben (wird als „offen“, also nicht ganz zu, angezeigt). Bei einer Störung trägt die Tür zusätzlich das Attribut `stoerung` mit dem Wortlaut der Kerbl-App (z. B. „Klappenstörung“).
 
 ## Grenzen
 

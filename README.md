@@ -61,6 +61,7 @@ Zusätzlich wird jede Minute abgefragt, falls die Live-Verbindung abreißt.
 | 32 | Wasser leer |
 | 512 | Klappenstörung |
 | 2048 | Fremdlichtstörung (z. B. Taschenlampe im Stall) |
+| 4096 | Uhrzeit Fehler (Moduluhr nach Stromausfall verloren, korrigiert sich per Internet selbst) |
 
 **Tür** (`door.state`): 79 = offen, 67 = geschlossen, 111 = öffnet, 99 = schließt, 63 = bei Klappenstörung stehengeblieben (wird als „offen“, also nicht ganz zu, angezeigt). Bei einer Störung trägt die Tür zusätzlich das Attribut `stoerung` mit dem Wortlaut der Kerbl-App (z. B. „Klappenstörung“).
 

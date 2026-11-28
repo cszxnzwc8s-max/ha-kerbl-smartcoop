@@ -78,6 +78,9 @@ ERROR_CODES: dict[int, str] = {
     32: "Wasser leer",
     512: "Klappenstörung",
     2048: "Fremdlichtstörung",
+    # 27.11.2026 nach kurzem Stromausfall: Moduluhr auf Werkszeit 01.10.2020 12:00,
+    # verschwindet nach dem Zeitabgleich ueber das Internet von selbst
+    4096: "Uhrzeit Fehler",
 }
 
 
